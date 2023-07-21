@@ -30,7 +30,7 @@ public class LobbyController {
     }
 
     public void startGame(){
-        Main.gameController = new GameController(plugin, players, (ArrayList<Player>) Bukkit.getServer().getOnlinePlayers());
+        Main.gameController = new GameController(plugin, players, Bukkit.getServer().getOnlinePlayers());
         teleportAllPlayersToGameWorld();
         Main.gameController.startGame();
         Main.gameInProgress = true;

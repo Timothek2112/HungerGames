@@ -23,6 +23,9 @@ import org.timothek.HungerGames.Main;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GameController {
@@ -33,13 +36,15 @@ public class GameController {
     int announceDamageEvery = 10;
     int announceLootEvery = 30;
     int playersAlive = 0;
-    ArrayList<Player> playersInGame;
+    List<Player> playersInGame;
     Main plugin;
 
-    public GameController(Main plugin, int playersAlive, ArrayList<Player> playersInGame){
+    public GameController(Main plugin, int playersAlive, Collection<? extends Player> playersInGame){
         this.plugin = plugin;
         this.playersAlive = playersAlive;
-        this.playersInGame = playersInGame;
+        Player[] playersArray = new Player[playersInGame.size()];
+        playersInGame.toArray(playersArray);
+        this.playersInGame = Arrays.stream(playersArray).toList();
     }
 
     public void startGame(){
@@ -117,8 +122,8 @@ public class GameController {
             Bukkit.getServer().broadcastMessage("&eДо появления платформы с лутом осталось &f" + secondsToSpawnLoot + "&e секунд!");
         }
         if(secondsToSpawnLoot == 0){
-            Bukkit.getServer().broadcastMessage("&2&lПлатформа с лутом появилась!");
             int[] point = generatePointToSpawnLoot();
+            Bukkit.getServer().broadcastMessage("&2&lПлатформа с лутом появилась на координатах " + point[0] + " " + point[1] + " " + point[2] + "!");
             spawnLoot(point[0], point[1], point[2]);
             timerToSpawnLoot.cancel();
         }
@@ -126,15 +131,13 @@ public class GameController {
     }
 
     public int[] generatePointToSpawnLoot(){
-        int x = ThreadLocalRandom.current().nextInt(-1000, 1000);
-        int z = ThreadLocalRandom.current().nextInt(-1000, 1000);
+        int x = ThreadLocalRandom.current().nextInt(-500, 500);
+        int z = ThreadLocalRandom.current().nextInt(-500, 500);
         int y = Main.gameWorld.getHighestBlockYAt(x, z);
         return new int[] {x,y,z};
     }
 
     public void spawnLoot(int x, int y, int z){
-        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "/schem load lootPlane");
-        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "/paste");
         File lootPlaneSchem = new File("./FAWEschemas/lootPlane.schem");
         ClipboardFormat format = ClipboardFormats.findByFile(lootPlaneSchem);
         Clipboard clipboard;

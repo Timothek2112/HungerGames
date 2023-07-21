@@ -9,7 +9,7 @@ import org.timothek.HungerGames.Main;
 public class SpawnLootCMD implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        Main.gameController.spawnLoot(0, 0, 0);
+
         return true;
     }
 }
