@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.timothek.HungerGames.Main;
+import org.timothek.HungerGames.game.GameController;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,17 +17,11 @@ public class StartCMD implements CommandExecutor {
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if(Main.gameInProgress) return false;
         if(Main.gameWorld == null) return false;
-        Main.gameInProgress = true;
-        teleportAllPlayersToGameWorld();
-        Main.gameController.startGame();
+        Main.controller.startGame();
         return true;
     }
 
-    private void teleportAllPlayersToGameWorld(){
-        for(Player curPlayer : Main.lobbyWorld.getPlayers()){
-            curPlayer.teleport(new Location(Main.gameWorld, Main.gameWorld.getSpawnLocation().getX(), Main.gameWorld.getSpawnLocation().getY(), Main.gameWorld.getSpawnLocation().getZ()));
-        }
-    }
+
 
 
 

@@ -7,6 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.timothek.HungerGames.Main;
+import org.timothek.HungerGames.game.GameController;
+import org.timothek.HungerGames.game.LobbyController;
 
 public class StopCMD implements CommandExecutor {
     @Override
@@ -21,9 +23,9 @@ public class StopCMD implements CommandExecutor {
 
     private void teleportAllPlayersToLobbyWorld(){
         for(Player player : Main.gameWorld.getPlayers()){
-            player.teleport(new Location(Main.lobbyWorld, Main.lobbyWorld.getSpawnLocation().getX(), Main.lobbyWorld.getSpawnLocation().getY(), Main.lobbyWorld.getSpawnLocation().getZ()));
+            player.performCommand("server lobby");
         }
-        Main.controller.resetController();
+        Main.controller = new LobbyController(Main.plugin);
         Main.gameController.stopGame();
     }
 }

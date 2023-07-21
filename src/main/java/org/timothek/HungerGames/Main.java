@@ -11,6 +11,8 @@ import org.timothek.HungerGames.events.Events;
 import org.timothek.HungerGames.game.GameController;
 import org.timothek.HungerGames.game.LobbyController;
 
+import java.util.ArrayList;
+
 public class Main extends JavaPlugin {
     public static World gameWorld;
     public static World lobbyWorld;
@@ -18,17 +20,19 @@ public class Main extends JavaPlugin {
     public static LobbyController controller;
     public static GameController gameController;
     public static boolean damageOff = true;
+    public static Main plugin;
 
 
     @Override
     public void onEnable(){
+        plugin = this;
         this.getLogger().info( ChatColor.GREEN + "Плагин включен - " + this.getName());
         getCommand("startgame").setExecutor(new StartCMD());
         getCommand("stopgame").setExecutor(new StopCMD());
         getCommand("spawnloot").setExecutor(new SpawnLootCMD());
         Bukkit.getPluginManager().registerEvents(new Events(), this);
         controller = new LobbyController(this);
-        gameController = new GameController(this);
+        gameController = new GameController(this, 0, new ArrayList<>());
         controller.createGameWorldInAnotherThread();
     }
 

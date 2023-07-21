@@ -11,13 +11,19 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.timothek.HungerGames.Main;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GameController {
     BukkitTask timerToSpawnLoot;
@@ -26,10 +32,14 @@ public class GameController {
     int secondsToOnDamage = 30;
     int announceDamageEvery = 10;
     int announceLootEvery = 30;
+    int playersAlive = 0;
+    ArrayList<Player> playersInGame;
     Main plugin;
 
-    public GameController(Main plugin){
+    public GameController(Main plugin, int playersAlive, ArrayList<Player> playersInGame){
         this.plugin = plugin;
+        this.playersAlive = playersAlive;
+        this.playersInGame = playersInGame;
     }
 
     public void startGame(){
@@ -39,6 +49,37 @@ public class GameController {
     public void stopGame(){
         stopTimers();
         Main.gameInProgress = false;
+    }
+
+    public void playerLeave(Player player){
+        playersAlive--;
+        playersInGame.remove(player);
+        checkForWinner();
+    }
+
+    public void playerDeath(Player player, Player killer){
+        plugin.getServer().broadcastMessage("&4Игрок &f " + player.getName() + "&4 был убит игроком &f" + killer.getName());
+        playersInGame.remove(player);
+        playersAlive--;
+        checkForWinner();
+    }
+
+    public void checkForWinner(){
+        if(playersAlive == 1){
+            stopGame();
+            plugin.getServer().broadcastMessage("&6&lПобедил игрок &f" + playersInGame.get(0).getName());
+            try {
+                plugin.getServer().getWorld("playing").spawnEntity(playersInGame.get(0).getLocation(), EntityType.FIREWORK);
+                Thread.sleep(20L);
+                plugin.getServer().getWorld("playing").spawnEntity(playersInGame.get(0).getLocation(), EntityType.FIREWORK);
+                Thread.sleep(20L);
+                plugin.getServer().getWorld("playing").spawnEntity(playersInGame.get(0).getLocation(), EntityType.FIREWORK);
+
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {teleportAllPlayersToMainLobby();}, 5 * 20L);
+        }
     }
 
     public void startTimers(){
@@ -61,10 +102,10 @@ public class GameController {
 
     private void damageTimerTick(){
         if(secondsToOnDamage % announceDamageEvery == 0 || secondsToOnDamage <= 5){
-            Bukkit.getServer().broadcastMessage("До включения урона осталось: " + secondsToOnDamage + " секунд!");
+            Bukkit.getServer().broadcastMessage("&eДо включения урона осталось: &f" + secondsToOnDamage + "&e секунд!");
         }
         if(secondsToOnDamage == 0){
-            Bukkit.getServer().broadcastMessage("Теперь игроки могут наносить урон друг другу!");
+            Bukkit.getServer().broadcastMessage("&c&lТеперь игроки могут наносить урон друг другу!");
             Main.damageOff = false;
             timerToOnDamage.cancel();
         }
@@ -73,14 +114,22 @@ public class GameController {
 
     private void spawnLootTick(){
         if(secondsToSpawnLoot % announceLootEvery == 0 || secondsToSpawnLoot <= 5){
-            Bukkit.getServer().broadcastMessage("До появления платформы с лутом осталось " + secondsToSpawnLoot + " секунд!");
+            Bukkit.getServer().broadcastMessage("&eДо появления платформы с лутом осталось &f" + secondsToSpawnLoot + "&e секунд!");
         }
         if(secondsToSpawnLoot == 0){
-            Bukkit.getServer().broadcastMessage("Платформа с лутом появилась!");
-            spawnLoot(0, 0, 0);
+            Bukkit.getServer().broadcastMessage("&2&lПлатформа с лутом появилась!");
+            int[] point = generatePointToSpawnLoot();
+            spawnLoot(point[0], point[1], point[2]);
             timerToSpawnLoot.cancel();
         }
         secondsToSpawnLoot--;
+    }
+
+    public int[] generatePointToSpawnLoot(){
+        int x = ThreadLocalRandom.current().nextInt(-1000, 1000);
+        int z = ThreadLocalRandom.current().nextInt(-1000, 1000);
+        int y = Main.gameWorld.getHighestBlockYAt(x, z);
+        return new int[] {x,y,z};
     }
 
     public void spawnLoot(int x, int y, int z){
@@ -104,5 +153,11 @@ public class GameController {
         } catch (WorldEditException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void teleportAllPlayersToMainLobby(){
+            for(Player curPlayer : Main.lobbyWorld.getPlayers()){
+                curPlayer.performCommand("server lobby");
+            }
     }
 }

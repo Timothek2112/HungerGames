@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -26,8 +27,17 @@ public class Events implements Listener {
     }
 
     @EventHandler
+    public void onDeath(PlayerDeathEvent event){
+        if(!(event.getEntity() instanceof Player)) return;
+        if(!Main.gameInProgress) return;
+        Main.gameController.playerDeath(((Player) event.getEntity()).getPlayer(), event.getEntity().getKiller());
+    }
+
+    @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event){
         Main.controller.playerLeave();
+        if(!Main.gameInProgress) return;
+        Main.gameController.playerLeave(event.getPlayer());
     }
 
     @EventHandler

@@ -29,8 +29,11 @@ public class LobbyController {
         }
     }
 
-    public void resetController(){
-        secondsToStart = maxSecondsToStart;
+    public void startGame(){
+        Main.gameController = new GameController(plugin, players, (ArrayList<Player>) Bukkit.getServer().getOnlinePlayers());
+        teleportAllPlayersToGameWorld();
+        Main.gameController.startGame();
+        Main.gameInProgress = true;
     }
 
     public void playerLeave(){
@@ -58,6 +61,8 @@ public class LobbyController {
         wc.type(WorldType.NORMAL);
         Main.lobbyWorld = Bukkit.getWorld("world");
         Main.gameWorld = wc.createWorld();
+        WorldBorder border = Main.gameWorld.getWorldBorder();
+        border.setSize(1000);
     }
 
     public void waitForPlayers() {
@@ -72,9 +77,17 @@ public class LobbyController {
         }
         if(secondsToStart == 0){
             Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "startgame");
+            stopTimer();
+            return;
         }
         if(this.players == maxPlayers){
             secondsToStart = secondsToStartMaxPlayers;
+        }
+    }
+
+    private void teleportAllPlayersToGameWorld(){
+        for(Player curPlayer : Main.lobbyWorld.getPlayers()){
+            curPlayer.teleport(new Location(Main.gameWorld, Main.gameWorld.getSpawnLocation().getX(), Main.gameWorld.getSpawnLocation().getY(), Main.gameWorld.getSpawnLocation().getZ()));
         }
     }
 }
