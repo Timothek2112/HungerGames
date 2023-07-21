@@ -1,0 +1,23 @@
+name: HungerGames
+main: org.timothek.HungerGames.Main
+authors: [timothek]
+version: 0.1
+description: Плагин для реализации мини-игры Hunger Games *Специально для сервера Babka's World
+
+commands:
+  startgame:
+    description: Начинает игру со всеми игроками на сервере
+    aliases:
+      - stag
+    usage: Чтобы запустить эту команду игра не должна быть запущена
+
+  stopgame:
+    description: Останавливает текущую игру
+    aliases:
+      - stog
+    usage: Чтобы запустить эту команду игра должна быть запущена
+
+  spawnloot:
+    description: Немедленно генерирует платформу с лутом
+    aliases:
+      - spl

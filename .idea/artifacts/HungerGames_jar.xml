@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="HungerGames:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/HungerGames_jar</output-path>
+    <root id="archive" name="HungerGames.jar">
+      <element id="module-output" name="HungerGames" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/spigot-api.jar" path-in-jar="/" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/plugin.yml" />
+    </root>
+  </artifact>
+</component>
